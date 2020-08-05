@@ -11,7 +11,7 @@ func main() {
     r1 := rand.New(s1)
 	answer := r1.Intn(100) + 1
 
-	fmt.Println("answer is ", answer)
+	//fmt.Println("answer is ", answer)
 
 	var input int
 	var check string
