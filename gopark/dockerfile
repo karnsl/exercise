@@ -1,4 +1,10 @@
 FROM golang:1.14-alpine
 WORKDIR /gopark
+
+COPY go.mod .
+COPY go.sum .
+RUN go mod download
 COPY . .
+RUN go build -o ./gopark .
 EXPOSE 8080
+CMD [ "./gopark" ]
