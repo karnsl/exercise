@@ -38,6 +38,10 @@ func (input Input) Email(c *gin.Context) {
 		log.Println("Failed to register via email...", err)
 		c.JSON(http.StatusInternalServerError, "Failed to register via email...")
 	}
+	
+	c.JSON(http.StatusOK, gin.H{
+		"status" : "ok",
+	})
 }
 
 // ListAccounts list all accounts
@@ -54,6 +58,7 @@ func (input Input) ListAccounts(c *gin.Context) {
 			log.Println(err)
 		}
 		c.JSON(http.StatusOK, gin.H{
+			"status": "ok",
 			"username":     username,
 			"display_name": displayName,
 		})

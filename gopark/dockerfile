@@ -1,2 +1,4 @@
 FROM golang:1.14-alpine
+WORKDIR /gopark
+COPY . .
 EXPOSE 8080
