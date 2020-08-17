@@ -1,8 +1,15 @@
 package main
 
 import (
+	"strconv"
 	"fmt"
 )
+
+func main() {
+	for i := 1 ; i < 100 ; i++ {
+		fmt.Println(fizzbuzz(i))
+	}
+}
 
 func fizzbuzz(x int) string {
 	if x % 15 == 0 {
@@ -12,11 +19,5 @@ func fizzbuzz(x int) string {
 	} else if x % 3 == 0 {
 		return "Fizz"
 	}
-	return ""
-}
-
-func main() {
-	for i := 1 ; i < 100 ; i++ {
-		fmt.Println(i, fizzbuzz(i))
-	}
+	return strconv.Itoa(x)
 }

@@ -1,0 +1,3 @@
+FROM golang:1.14-alpine
+VOLUME "/docker"
+EXPOSE 8080
