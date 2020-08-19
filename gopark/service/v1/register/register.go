@@ -17,7 +17,7 @@ type Account struct {
 	Active      bool   `json:"active"`
 }
 
-// Input a register input
+// Input API
 type Input struct {
 	Db *sql.DB
 }
@@ -30,18 +30,20 @@ func (input Input) Email(c *gin.Context) {
 	err := c.BindJSON(&account)
 	if err != nil {
 		log.Println("Bind JSON failed...", err)
-		c.JSON(http.StatusInternalServerError, "Bind JSON failed...")
+		c.JSON(http.StatusBadRequest, "Bind JSON failed...")
+	} else {
+		// log.Println(account)
+		_, err = input.Db.Exec(sqlStr, account.Username, account.Password, "email", account.DisplayName, true)
+		if err != nil {
+			log.Println("Failed to register via email...", err)
+			c.JSON(http.StatusInternalServerError, "Failed to register via email...")
+		} else {
+
+			c.JSON(http.StatusOK, gin.H{
+				"status": "ok",
+			})
+		}
 	}
-	log.Println(account)
-	_, err = input.Db.Exec(sqlStr, account.Username, account.Password, "email", account.DisplayName, true)
-	if err != nil {
-		log.Println("Failed to register via email...", err)
-		c.JSON(http.StatusInternalServerError, "Failed to register via email...")
-	}
-	
-	c.JSON(http.StatusOK, gin.H{
-		"status" : "ok",
-	})
 }
 
 // ListAccounts list all accounts
@@ -58,7 +60,7 @@ func (input Input) ListAccounts(c *gin.Context) {
 			log.Println(err)
 		}
 		c.JSON(http.StatusOK, gin.H{
-			"status": "ok",
+			"status":       "ok",
 			"username":     username,
 			"display_name": displayName,
 		})

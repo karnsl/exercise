@@ -27,5 +27,10 @@ func main() {
 	log.Println("Database Connected.")
 	defer db.Close()
 
-	handler.Router(db)
+	h := handler.Input{
+		Db: db,
+	}
+
+	r := h.Router()
+	r.Run(":8080")
 }
