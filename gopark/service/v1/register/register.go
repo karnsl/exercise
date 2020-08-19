@@ -6,8 +6,16 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/karnsl/exercise/gopark/service/v1/model/model"
 )
+
+// Account a model of table accounts.
+type Account struct {
+	Username    string `json:"username"`
+	Password    string `json:"password"`
+	Channel     string `json:"channel"`
+	DisplayName string `json:"display_name"`
+	Active      bool   `json:"active"`
+}
 
 // Input API
 type Input struct {
@@ -18,7 +26,7 @@ type Input struct {
 func (input Input) Email(c *gin.Context) {
 	sqlStr := "INSERT INTO accounts VALUES($1, $2, $3, $4, $5)"
 
-	var account model.Account
+	var account Account
 	err := c.BindJSON(&account)
 	if err != nil {
 		log.Println("Bind JSON failed...", err)

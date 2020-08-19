@@ -5,11 +5,25 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/karnsl/exercise/gopark/service/v1/model"
-
 	"github.com/gin-gonic/gin"
-	"github.com/karnsl/exercise/gopark/service/v1/model/model"
 )
+
+// Place a model of table places
+type Place struct {
+	ID   int16  `json:"id"`
+	Name string `json:"name"`
+}
+
+// Lot a model of table lot
+type Lot struct {
+	ID       int16  `json:"id"`
+	PlaceID  int16  `json:"place_id"`
+	Building string `json:"building"`
+	Floor    string `json:"floor"`
+	Zone     string `json:"zone"`
+	Number   int8   `json:"number"`
+	Username string `json:"username"`
+}
 
 // Input API
 type Input struct {
@@ -20,7 +34,7 @@ type Input struct {
 func (input Input) AddPlace(c *gin.Context) {
 	sqlStr := "INSERT INTO places VALUES $1"
 
-	var place model.Place
+	var place Place
 
 	err := c.BindJSON(&place)
 	if err != nil {
@@ -43,7 +57,7 @@ func (input Input) AddPlace(c *gin.Context) {
 func (input Input) AddParkingLot(c *gin.Context) {
 	sqlStr := "INSERT INTO lot VALUES ($1 $2 $3 $4 $5 $6)"
 
-	var lot model.Lot
+	var lot Lot
 
 	err := c.BindJSON(&lot)
 	if err != nil {
