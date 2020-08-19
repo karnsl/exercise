@@ -20,25 +20,47 @@ type Input struct {
 	Db *sql.DB
 }
 
+func checkLot(db *sql.DB, id int16, placeID int16) bool {
+	sqlStr := "SELECT 1 FROM lot WHERE id = $1 AND place_id = $2 AND username IS NULL"
+	rows, err := db.Query(sqlStr)
+	if err != nil {
+		log.Println("Query check lot failed...", err)
+	}
+
+	if rows.Next() {
+		var result int
+		rows.Scan(&result)
+		if result == 1 {
+			return true
+		}
+	}
+
+	return false
+}
+
 // ReserveLot to reserve parking lot
 func (input Input) ReserveLot(c *gin.Context) {
-	sqlStr := "UPDATE lot SET username = $1 WHERE id = $2 AND place_id = $3"
-
 	var reservation Reservation
 	err := c.BindJSON(&reservation)
 	if err != nil {
 		log.Println("Bind JSON request Reservation failed...", err)
 		c.JSON(http.StatusBadRequest, "Bind JSON request Reservation failed...")
 	} else {
-		// log.Println(account)
-		_, err = input.Db.Exec(sqlStr, reservation.Username, reservation.ID, reservation.PlaceID)
-		if err != nil {
-			log.Println("Failed to reserve parking lot...", err)
-			c.JSON(http.StatusInternalServerError, "Failed to reserve parking lot...")
-		} else {
+		if checkLot(input.Db, reservation.ID, reservation.PlaceID) {
+			sqlStr := "UPDATE lot SET username = $1 WHERE id = $2 AND place_id = $3"
+			_, err = input.Db.Exec(sqlStr, reservation.Username, reservation.ID, reservation.PlaceID)
+			if err != nil {
+				log.Println("Failed to reserve parking lot...", err)
+				c.JSON(http.StatusInternalServerError, "Failed to reserve parking lot...")
+			} else {
 
+				c.JSON(http.StatusOK, gin.H{
+					"reponse_msg": "Reserved successfully.",
+				})
+			}
+		} else {
 			c.JSON(http.StatusOK, gin.H{
-				"status": "ok",
+				"reponse_msg": "The lot has been reserved by someone else.",
 			})
 		}
 	}
