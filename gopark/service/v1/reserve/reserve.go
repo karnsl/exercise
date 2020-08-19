@@ -22,7 +22,7 @@ type Input struct {
 
 func checkLot(db *sql.DB, id int16, placeID int16) bool {
 	sqlStr := "SELECT 1 FROM lot WHERE id = $1 AND place_id = $2 AND username IS NULL"
-	rows, err := db.Query(sqlStr)
+	rows, err := db.Query(sqlStr, id, placeID)
 	if err != nil {
 		log.Println("Query check lot failed...", err)
 	}
@@ -61,6 +61,27 @@ func (input Input) ReserveLot(c *gin.Context) {
 		} else {
 			c.JSON(http.StatusOK, gin.H{
 				"reponse_msg": "The lot has been reserved by someone else.",
+			})
+		}
+	}
+}
+
+// Unlock free the parking lot to available lot
+func (input Input) Unlock(c *gin.Context) {
+	var reservation Reservation
+	err := c.BindJSON(&reservation)
+	if err != nil {
+		log.Println("Bind JSON request Unlock failed...", err)
+		c.JSON(http.StatusBadRequest, "Bind JSON request Unlock failed...")
+	} else {
+		sqlStr := "UPDATE lot SET username = NULL WHERE id = $1 AND place_id = $2"
+		_, err = input.Db.Exec(sqlStr, reservation.ID, reservation.PlaceID)
+		if err != nil {
+			log.Println("Failed to unlock parking lot...", err)
+			c.JSON(http.StatusInternalServerError, "Failed to unlock parking lot...")
+		} else {
+			c.JSON(http.StatusOK, gin.H{
+				"reponse_msg": "Unlock successfully.",
 			})
 		}
 	}

@@ -32,8 +32,6 @@ type Input struct {
 
 // AddPlace a method to add new place
 func (input Input) AddPlace(c *gin.Context) {
-	sqlStr := "INSERT INTO places VALUES $1"
-
 	var place Place
 
 	err := c.BindJSON(&place)
@@ -41,7 +39,8 @@ func (input Input) AddPlace(c *gin.Context) {
 		log.Println("Bind JSON place failed...", err)
 		c.JSON(http.StatusBadRequest, "Bind JSON place failed")
 	} else {
-		_, err = input.Db.Exec(sqlStr, place.Name)
+		sqlStr := "INSERT INTO places VALUES ($1, $2)"
+		_, err = input.Db.Exec(sqlStr, place.ID, place.Name)
 		if err != nil {
 			log.Println("Failed to add a new place...", err)
 			c.JSON(http.StatusInternalServerError, "Failed to add a new place...")
@@ -55,7 +54,7 @@ func (input Input) AddPlace(c *gin.Context) {
 
 // AddParkingLot a method to add new parking lot
 func (input Input) AddParkingLot(c *gin.Context) {
-	sqlStr := "INSERT INTO lot VALUES ($1 $2 $3 $4 $5 $6)"
+	sqlStr := "INSERT INTO lot VALUES ($1, $2, $3, $4, $5, $6, $7)"
 
 	var lot Lot
 
@@ -64,7 +63,7 @@ func (input Input) AddParkingLot(c *gin.Context) {
 		log.Println("Bind JSON place failed...", err)
 		c.JSON(http.StatusBadRequest, "Bind JSON place failed")
 	} else {
-		_, err = input.Db.Exec(sqlStr, lot.PlaceID, lot.Building, lot.Floor, lot.Zone, lot.Number, nil)
+		_, err = input.Db.Exec(sqlStr, lot.ID, lot.PlaceID, lot.Building, lot.Floor, lot.Zone, lot.Number, nil)
 		if err != nil {
 			log.Println("Failed to add a new place...", err)
 			c.JSON(http.StatusInternalServerError, "Failed to add a new place...")

@@ -36,7 +36,9 @@ func (input Input) Router() *gin.Engine {
 	r.POST("/admin/place", admin.AddPlace)
 	r.POST("/admin/lot", admin.AddParkingLot)
 	r.POST("/lot/reserve", lot.ReserveLot)
-	r.GET("/accounts", reg.ListAccounts)
+	r.POST("/lot/unlock", lot.Unlock)
+	r.GET("/lot/list", lot.ListAvailableLot)
+	r.GET("/account/list", reg.ListAccounts)
 
 	return r
 }
