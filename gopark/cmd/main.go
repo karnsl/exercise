@@ -14,7 +14,7 @@ func main() {
 	const (
 		dbUser     = "postgres"
 		dbPassword = "P@ssw0rd"
-		dbHost     = "192.168.1.51"
+		dbHost     = "172.17.106.61"
 		dbPort     = 5432
 		dbName     = "Gopark"
 	)
