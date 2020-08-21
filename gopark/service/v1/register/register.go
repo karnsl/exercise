@@ -2,6 +2,8 @@ package register
 
 import (
 	"database/sql"
+	"encoding/json"
+	"io/ioutil"
 	"log"
 	"net/http"
 
@@ -31,19 +33,25 @@ func (input Input) Email(c *gin.Context) {
 	if err != nil {
 		log.Println("Bind JSON failed...", err)
 		c.JSON(http.StatusBadRequest, "Bind JSON failed...")
-	} else {
-		// log.Println(account)
+		return
+	}
+
+	if !userExists(account.DisplayName, "https://jsonplaceholder.typicode.com/todos/1") {
 		_, err = input.Db.Exec(sqlStr, account.Username, account.Password, "email", account.DisplayName, true)
 		if err != nil {
 			log.Println("Failed to register via email...", err)
 			c.JSON(http.StatusInternalServerError, "Failed to register via email...")
-		} else {
-
-			c.JSON(http.StatusOK, gin.H{
-				"status": "ok",
-			})
+			return
 		}
+	} else {
+		log.Println("User already exist")
+		c.JSON(http.StatusNotAcceptable, "User already exist")
+		return
 	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status": "ok",
+	})
 }
 
 // ListAccounts list all accounts
@@ -68,4 +76,30 @@ func (input Input) ListAccounts(c *gin.Context) {
 	if !rows.NextResultSet() {
 		log.Println(rows.Err())
 	}
+}
+
+// User Http Get Response
+type User struct {
+	UserID    int    `json:"user_id"`
+	ID        int    `json:"id"`
+	Title     string `json:"title"`
+	Completed bool   `json:"completed"`
+}
+
+func userExists(title string, url string) bool {
+	// fmt.Println("1. Performing Http Get...")
+	resp, err := http.Get(url)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	defer resp.Body.Close()
+	bodyBytes, _ := ioutil.ReadAll(resp.Body)
+
+	// Convert response body to Todo struct
+	var user User
+	json.Unmarshal(bodyBytes, &user)
+	// fmt.Printf("API Response as struct %+v\n", user)
+
+	return title == user.Title
 }
