@@ -1,0 +1,30 @@
+version: '2.0'
+
+networks:
+  shared-network:
+    driver: bridge
+
+services:
+  api:
+    networks:
+      - shared-network
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+
+  db:
+    # image: postgres:12.4-alpine
+    networks:
+      - shared-network
+    build: 
+      context: .
+      dockerfile: db.dockerfile
+    ports:
+      - "5442:5432"
+    environment:
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'P@ssw0rd'
+      POSTGRES_MULTIPLE_DATABASE: 'Gopark'
+    restart: always
