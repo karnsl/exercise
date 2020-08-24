@@ -36,7 +36,9 @@ func (input Input) Email(c *gin.Context) {
 		return
 	}
 
-	if !userExists(account.DisplayName, "https://jsonplaceholder.typicode.com/todos/1") {
+	cli := Client{}
+
+	if !userExists(cli, account.DisplayName, "https://jsonplaceholder.typicode.com/todos/1") {
 		_, err = input.Db.Exec(sqlStr, account.Username, account.Password, "email", account.DisplayName, true)
 		if err != nil {
 			log.Println("Failed to register via email...", err)
@@ -86,15 +88,12 @@ type User struct {
 	Completed bool   `json:"completed"`
 }
 
-func userExists(title string, url string) bool {
-	// fmt.Println("1. Performing Http Get...")
-	resp, err := http.Get(url)
-	if err != nil {
-		log.Fatalln(err)
-	}
+func userExists(c Clienter, title string, url string) bool {
 
-	defer resp.Body.Close()
-	bodyBytes, _ := ioutil.ReadAll(resp.Body)
+	bodyBytes, err := c.httpGet(url)
+	if err != nil {
+		log.Print(err)
+	}
 
 	// Convert response body to Todo struct
 	var user User
@@ -102,4 +101,22 @@ func userExists(title string, url string) bool {
 	// fmt.Printf("API Response as struct %+v\n", user)
 
 	return title == user.Title
+}
+
+// Clienter client interface
+type Clienter interface {
+	httpGet(url string) ([]byte, error)
+}
+
+//Client client
+type Client struct{}
+
+func (cli Client) httpGet(url string) ([]byte, error) {
+	// fmt.Println("1. Performing Http Get...")
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	return ioutil.ReadAll(resp.Body)
 }
